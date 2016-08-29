@@ -1,0 +1,35 @@
+(set-option :mbqi true)
+(set-option :model-compact true)
+
+(define-sort Set (T) (Array T Bool))                                  
+(define-fun set-union ((x (Set Int)) (y (Set Int)))                   
+  (Set Int) ((_ map or) x y))                                         
+(define-fun set-xn ((x (Set Int)) (y (Set Int)))                      
+  (Set Int) ((_ map and) x y))                                        
+(define-fun set-compl ((x (Set Int)))(Set Int) ((_ map not) x ))      
+(define-fun sub-set ((x (Set Int)) (y (Set Int)))                     
+  (Bool) (= y (set-union x y)))                                       
+ (define-fun set-add ((a Int)(x (Set Int)))                           
+   (Set Int) (store x a true) )                                       
+ (define-fun set-empty ()(Set Int)                                    
+   ((as const (Set Int)) false))  
+ (define-fun set-singleton ((x Int))(Set Int)
+   (set-add x set-empty))                                
+
+;; A, B, C and D are sets of Int
+(declare-const S (Set Int))                                           
+(declare-const S1 (Set Int))
+(declare-const S2 (Set Int))
+(declare-const n Int)
+(declare-const mn Int)
+
+(assert (= S (set-union (set-singleton n) (set-union S1 S2))))
+(assert (forall ((x Int)) (=> (select S1 x) (< x n))))
+(assert (forall ((x Int)) (=> (select S2 x) (> x n))))
+
+(assert (select S1 mn))
+(assert (forall ((x Int)) (=> (select S1 x) (or (> x mn) (= x mn)))))
+(assert (exists ((x Int)) (and (select S x) (< x mn))))
+(check-sat)
+(get-model)
+

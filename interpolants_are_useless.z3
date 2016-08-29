@@ -1,0 +1,23 @@
+(set-option :produce-interpolants true)
+(declare-const a Int)
+(declare-const b Int)
+(declare-const c Int)
+(declare-const d Int)
+(assert (and (or (= a 2) (= a 3))
+             (or (= b 0) (= b 1))
+))
+(assert (! (or (and (= a 2) (= b 0) (= c 2))
+               (and (= a 3) (= b 1) (= c 4))
+               (and (= a 3) (= b 2) (= c 5))) :named f1))
+(assert (! (and (=> (and (= a 2) (= b 0)) (= c 0))
+                (=> (and (= a 2) (= b 0)) (= c 1))
+                (=> (and (= a 3) (= b 1)) (= c 0))
+                (=> (and (= a 3) (= b 1)) (= c 1))
+                (=> (and (= a 3) (= b 1)) (= c 2))
+                (=> (and (= a 3) (= b 2)) (= c 1))) :named f2))
+(check-sat)
+(get-model)
+;; It is reasonable to expect any of {c>a, c>a /\ c>b, c=a+b} as
+;; interpolants. But, z3 simply returns a trivial interpolant.
+(get-interpolant f1 f2)
+
