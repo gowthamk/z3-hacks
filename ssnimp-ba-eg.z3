@@ -38,7 +38,8 @@
   (if (>= (getBalance e5) a2) 
     (and (= (oper e5) WD) (= (rval e5) a2)) 
     (and (= (oper e5) NOP))))
-(assert (>= (+ (sel e1 e3) (sel e2 e3)) 0))
+;; getBalance returns non-negative value initially.
+; (assert (>= (+ (sel e1 e3) (sel e2 e3)) 0))
 
 ;; The high-level invariant
 (declare-const inv Bool)
@@ -51,58 +52,58 @@
 (get-model)
 (pop)
 
-;; 1st Counterexample
-(push)
-;; First assert general details about effect labels.
-;; e1 is DP, e2 is GB, e4 is WD, and e5 is NOP.
-(assert (= (oper e1) DP))
-(assert (= (oper e2) GB))
-(assert (= (oper e4) WD))
-(assert (= (oper e5) NOP))
+; ;; 1st Counterexample
+; (push)
+; ;; First assert general details about effect labels.
+; ;; e1 is DP, e2 is GB, e4 is WD, and e5 is NOP.
+; (assert (= (oper e1) DP))
+; (assert (= (oper e2) GB))
+; (assert (= (oper e4) WD))
+; (assert (= (oper e5) NOP))
 
-;; assert soft constraints
-(assert-soft (not (vis e1 e2)))
-(assert-soft (not (vis e1 e3)))
-(assert-soft (not (vis e1 e4)))
-(assert-soft (not (vis e1 e5)))
-(assert-soft (not (vis e2 e1)))
-(assert-soft (not (vis e2 e3)))
-(assert-soft (not (vis e2 e4)))
-(assert-soft (not (vis e2 e5)))
-(assert-soft (not (vis e3 e1)))
-(assert-soft (not (vis e3 e2)))
-(assert-soft (not (vis e3 e4)))
-(assert-soft (not (vis e3 e5)))
-(assert-soft (not (vis e4 e1)))
-(assert-soft (not (vis e4 e2)))
-(assert-soft (not (vis e4 e3)))
-(assert-soft (not (vis e4 e5)))
-(assert-soft (not (vis e5 e1)))
-(assert-soft (not (vis e5 e2)))
-(assert-soft (not (vis e5 e3)))
-(assert-soft (not (vis e5 e4)))
+; ;; assert soft constraints
+; (assert-soft (not (vis e1 e2)))
+; (assert-soft (not (vis e1 e3)))
+; (assert-soft (not (vis e1 e4)))
+; (assert-soft (not (vis e1 e5)))
+; (assert-soft (not (vis e2 e1)))
+; (assert-soft (not (vis e2 e3)))
+; (assert-soft (not (vis e2 e4)))
+; (assert-soft (not (vis e2 e5)))
+; (assert-soft (not (vis e3 e1)))
+; (assert-soft (not (vis e3 e2)))
+; (assert-soft (not (vis e3 e4)))
+; (assert-soft (not (vis e3 e5)))
+; (assert-soft (not (vis e4 e1)))
+; (assert-soft (not (vis e4 e2)))
+; (assert-soft (not (vis e4 e3)))
+; (assert-soft (not (vis e4 e5)))
+; (assert-soft (not (vis e5 e1)))
+; (assert-soft (not (vis e5 e2)))
+; (assert-soft (not (vis e5 e3)))
+; (assert-soft (not (vis e5 e4)))
 
-(push)
-;; Then assert specific details.
-;; a1 = 1 and a2 = 1
-(assert (and (= a1 1) (= a2 1)))
-;; vis(e1,e4) /\ vis(e4,e3)
-(assert (and (vis e1 e4) (vis e4 e3)))
-(assert inv)
-(check-sat)    
-(get-model)
-;; The solution returned is vis(e1,e3)
-(pop)
+; (push)
+; ;; Then assert specific details.
+; ;; a1 = 1 and a2 = 1
+; (assert (and (= a1 1) (= a2 1)))
+; ;; vis(e1,e4) /\ vis(e4,e3)
+; (assert (and (vis e1 e4) (vis e4 e3)))
+; (assert inv)
+; (check-sat)    
+; (get-model)
+; ;; The solution returned is vis(e1,e3)
+; (pop)
 
-;; Now, check if the solution is sufficient
-(push)
-(assert (=> (and (vis e1 e4) (vis e4 e3)) (vis e1 e3)))
-(assert (not inv))
-(check-sat) ; Unsat! Hence, the solution is sufficient.
-(get-model)
-(pop)
+; ;; Now, check if the solution is sufficient
+; (push)
+; (assert (=> (and (vis e1 e4) (vis e4 e3)) (vis e1 e3)))
+; (assert (not inv))
+; (check-sat) ; Unsat! Hence, the solution is sufficient.
+; (get-model)
+; (pop)
 
-(pop)
-;; End of counterexample 1
+; (pop)
+; ;; End of counterexample 1
 
 
