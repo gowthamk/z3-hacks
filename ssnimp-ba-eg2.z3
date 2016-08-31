@@ -1,5 +1,5 @@
 ;; Command to run: 
-;; z3 -smt2 smt.mbqi=true smt.macro-finder=true -T:20 ssnimp-ba-eg.z3
+;; z3 -smt2 smt.mbqi=true smt.macro-finder=true -T:20 ssnimp-ba-eg2.z3
 (declare-datatypes () ((Oper GB WD DP NOP)))
 (declare-datatypes () ((Eff e1 e2 e3 e4 e5)))
 (declare-fun oper (Eff) Oper)
@@ -157,3 +157,131 @@
   (eval (oper e4))
   (eval (oper e5))
 (pop)
+
+;; 2nd Counterexample
+(push)
+  ;; First assert general details about effect labels.
+  (assert (= (oper e1) WD))
+  (assert (= (oper e2) DP))
+  (assert (= (oper e4) WD))
+  (assert (= (oper e5) NOP))
+
+  (push)
+    ;; Then assert specific details.
+    ;; a1 = 1 and a2 = 1
+    (assert (and (= a1 1) (= a2 1)))
+    (assert (and (= (rval e1) 1) (= (rval e2) 1)))
+    ;; vis(e1,e3) /\ vis(e2,e3) /\ vis(e4,e3) 
+    ;; /\ vis(e2,e4)
+    (assert (and (vis e1 e3) (vis e2 e3) (vis e4 e3) (vis e2 e4)))
+    (assert inv)
+    (check-sat) ;; Unsat! No solution exists!
+    (get-model)
+  (pop)
+(pop)
+
+;; Negate the counterexample and try.
+(push)
+ (assert (not (and 
+  (= (oper e1) WD) (= (oper e2) DP) (= (oper e4) WD) 
+  (vis e1 e3) (vis e2 e3) (vis e4 e3) (vis e2 e4))))
+  (assert (not inv))
+  (check-sat)
+  (get-model)
+  (eval (oper e1))
+  (eval (oper e2))
+  (eval (oper e3))
+  (eval (oper e4))
+  (eval (oper e5))
+(pop)
+
+
+;; 3rd Counterexample
+(push)
+  ;; First assert general details about effect labels.
+  (assert (= (oper e1) DP))
+  (assert (= (oper e2) WD))
+  (assert (= (oper e4) NOP))
+  (assert (= (oper e5) WD))
+
+  (push)
+    ;; Then assert specific details.
+    ;; a1 = 1 and a2 = 1
+    (assert (and (= a1 1) (= a2 1)))
+    (assert (and (= (rval e1) 1) (= (rval e2) 1)))
+    (assert (and (vis e1 e3) (vis e2 e3) (vis e5 e3) (vis e1 e5)))
+    (assert inv)
+    (check-sat) ;; Unsat! No solution exists!
+    (get-model)
+  (pop)
+(pop)
+
+;; Negate both the counterexamples and try.
+(push)
+ (assert (not (and 
+  (= (oper e1) WD) (= (oper e2) DP) (= (oper e4) WD) 
+  (vis e1 e3) (vis e2 e3) (vis e4 e3) (vis e2 e4))))
+ (assert (not (and 
+  (= (oper e1) DP) (= (oper e2) WD) (= (oper e5) WD) 
+  (vis e1 e3) (vis e2 e3) (vis e5 e3) (vis e1 e5))))
+  (assert (not inv))
+  (check-sat)
+  (get-model)
+  (eval (oper e1))
+  (eval (oper e2))
+  (eval (oper e3))
+  (eval (oper e4))
+  (eval (oper e5))
+(pop)
+
+;; 4th Counterexample
+(push)
+  ;; First assert general details about effect labels.
+  (assert (= (oper e1) DP))
+  (assert (= (oper e2) WD))
+  (assert (= (oper e4) WD))
+  (assert (= (oper e5) NOP))
+
+  (push)
+    ;; Then assert specific details.
+    ;; a1 = 1 and a2 = 1
+    (assert (and (= a1 1) (= a2 1)))
+    (assert (and (= (rval e1) 1) (= (rval e2) 1)))
+    (assert (and (vis e1 e3) (vis e2 e3) (vis e4 e3) (vis e1 e4)))
+    (assert inv)
+    (check-sat) ;; Unsat! No solution exists!
+    (get-model)
+  (pop)
+(pop)
+
+;; Negate all counterexamples until Unsat (Note: all are unfixable).
+(push)
+  (assert (not (and 
+    (= (oper e1) WD) (= (oper e2) DP) (= (oper e4) WD) 
+    (vis e1 e3) (vis e2 e3) (vis e4 e3) (vis e2 e4))))
+  (assert (not (and 
+    (= (oper e1) DP) (= (oper e2) WD) (= (oper e5) WD) 
+    (vis e1 e3) (vis e2 e3) (vis e5 e3) (vis e1 e5))))
+  (assert (not (and 
+    (= (oper e1) DP) (= (oper e2) WD) (= (oper e4) WD) 
+    (vis e1 e3) (vis e2 e3) (vis e4 e3) (vis e1 e4))))
+  (assert (not (and 
+    (= (oper e1) WD) (= (oper e2) DP) (= (oper e5) WD) 
+    (vis e1 e3) (vis e2 e3) (vis e5 e3) (vis e2 e5))))
+  (assert (not (and 
+    (= (oper e1) DP) (= (oper e4) WD) (= (oper e5) WD) 
+    (vis e1 e3) (vis e4 e3) (vis e5 e3) (vis e1 e4) (vis e1 e5))))
+  (assert (not (and 
+    (= (oper e2) DP) (= (oper e4) WD) (= (oper e5) WD) 
+    (vis e2 e3) (vis e4 e3) (vis e5 e3) (vis e2 e4) (vis e2 e5))))
+  (assert (not inv))
+  (check-sat)
+  (get-model)
+  (eval (oper e1))
+  (eval (oper e2))
+  (eval (oper e3))
+  (eval (oper e4))
+  (eval (oper e5))
+(pop)
+
+
