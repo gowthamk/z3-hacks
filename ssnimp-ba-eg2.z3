@@ -275,7 +275,7 @@
     (= (oper e2) DP) (= (oper e4) WD) (= (oper e5) WD) 
     (vis e2 e3) (vis e4 e3) (vis e5 e3) (vis e2 e4) (vis e2 e5))))
   (assert (not inv))
-  (check-sat)
+  (check-sat) ; Unsat. No more counterexamples.
   (get-model)
   (eval (oper e1))
   (eval (oper e2))
@@ -284,4 +284,15 @@
   (eval (oper e5))
 (pop)
 
+;; Generalizing from counterexamples, we get the following contract:
+(assert (forall ((a Eff)(b Eff)(c Eff)(d Eff)) 
+  (=> (and (= (oper a) DP) (= (oper b) WD) (= (oper c) WD) (= (oper d) GB)
+           (vis a b) (vis a c) (vis a d) (vis b d) (vis c d))
+      (or (vis b c) (vis c b)))))
+(check-sat)
 
+(push)
+  (assert (not inv))
+  (check-sat)    
+  (get-model) ;; Unsat! We have inferred all the contracts.
+(pop)
